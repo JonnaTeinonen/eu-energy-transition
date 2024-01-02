@@ -4,15 +4,12 @@ import dash_bootstrap_components as dbc
 import matplotlib
 from matplotlib.pyplot import cm
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
-from functions import *
+import numpy as np
 
-# Current version
 # Data
-# Setting so that all the variables can bee seen
-pd.set_option('display.width', 500)
-pd.set_option('display.max_columns', 12)
-data = reading_csv('C:\\Users\\JonnaMS\\Desktop\\Itseopiskelu\\Portfolio\\Datasetit\\Monthly Electricity Production in GWh [2010-2022].zip')
+data = pd.read_csv('C:\\Users\\JonnaMS\\Desktop\\Itseopiskelu\\Portfolio\\Datasetit\\Monthly Electricity Production in GWh [2010-2022].zip')
 
 # Changing the column names to lowercase
 col_names = list(data.columns)
@@ -66,7 +63,9 @@ sidebar = html.Div([
 content = html.Div([
     dbc.Row(style={'height': '2vh'}, className='bg-primary'),
     dbc.Row([
-        html.P('The Electricity Production in European Countries in 2010-2022'),
+        html.P('The Electricity Production in European Countries in 2010-2022',
+               style={'font-weight': 'bold',
+                      'font-size': 25}),
     ],
         style={'height': '5vh', 'textAlign': 'center'}, className='bg-primary text-white font-weight-bold'
     ),
@@ -78,21 +77,33 @@ content = html.Div([
                              id='year-range-slider',
                              marks={i: '{}'.format(i) for i in range(2010, 2024)})]),
 
+
     dbc.Row([
-        dbc.Col([html.P(),
-                 html.P(id='bar-title'),
+        dbc.Col([html.P(id='bar-title', style={'margin-top':'15px'}),
                  dcc.Graph(id='barchart-products')
                  ]),
-        dbc.Col([dcc.Dropdown(id='chosen-product',
-                         multi=False,
-                         value='Renewables',
-                         options=['Renewables', 'Fossil fuels', 'Nuclear'],
-                         style={'width': '200px'}),
-                html.Div(id="product-table-share")])
-    ], style={'height': '50vh'}),
+        dbc.Col([html.Label(id='table-title', style={'margin-top':'15px',
+                                                     'margin-bottom':'15px'}),
+                 html.Div(id="product-table", style={'margin-bottom':'15px'}),
+                 dbc.Row([dcc.Dropdown(id='chosen-product',
+                                       multi=False,
+                                       value='Renewables',
+                                       options=['Renewables', 'Fossil fuels', 'Nuclear'],
+                                       style={'width': '200px'}),
 
-    dbc.Row([html.P(id='line-title'),
-    dcc.Graph(id='linechart-value')])
+                          dcc.Dropdown(id='chosen-val-table',
+                                      multi=False,
+                                      value='Energy share',
+                                      options=['Energy share', 'Generated energy'],
+                                      style={'width': '200px',
+                                             'margin-left': '15px'})]
+                )
+                 ])
+    ], style={'height': '55vh'}),
+
+    dbc.Row([html.Label(id='line-title', style={'margin-top':'50px',
+                                                'margin-left':'80px'}),
+             dcc.Graph(id='linechart-value')])
 ])
 
 
@@ -105,6 +116,13 @@ app.layout = dbc.Container([
     style={'height': '100vh'})],
     # Additional margins removed
 fluid=True)
+
+
+
+
+#########################################
+############### CALLBACKS ###############
+#########################################
 
 @app.callback(Output('barchart-products', 'figure'),
               Output('bar-title', 'children'),
@@ -128,22 +146,23 @@ def update_barchart_products(n_clicks, country: str, years: list[int]):
     barchart_data = bar_data.groupby(['product'])['share'].mean().reset_index()
 
     fig_bar = px.bar(barchart_data,
-                 x='product',
-                y=['share'],
-                 color='product',
-                 color_discrete_sequence=px.colors.qualitative.Prism,
-                 width=800,
-                 height=450)
+                     x='product',
+                     y=['share'],
+                     color='product',
+                     color_discrete_sequence=px.colors.qualitative.Prism,
+                     width=800,
+                     height=450)
 
     fig_bar.update_traces(width=0.5, hovertemplate="Share: %{y}")
 
     fig_bar.update_layout(xaxis_title='Energy Source',
                           yaxis_title='Average share in percentage',
                           showlegend=True,
-                          legend_title=False,
+                          legend_title="",
                           xaxis_type='category',
                           xaxis=dict(tickmode='array',
-                                     tickvals=['Hydro', 'Wind', 'Solar', 'Coal', 'Oil', 'Natural gas', 'Others', 'Nuclear']))
+                                     tickvals=['Hydro', 'Wind', 'Solar', 'Coal', 'Oil', 'Natural gas', 'Others', 'Nuclear']),
+                          margin=go.layout.Margin(t=27))
 
     return fig_bar, bar_title
 
@@ -174,46 +193,50 @@ def update_linechart_value(n_clicks, country, years):
     colors = px.colors.qualitative.Set1
 
     for i in range(len(line_products)):
-        fig_data = line_data[line_data['product'] == line_products[i]].sort_values(by=['year', 'month'], ascending=True).reset_index(drop=True)
-        pd.options.display.max_rows = 999
-        print(fig_data['year'])
+        fig_data = line_data[line_data['product'] == line_products[i]].sort_values(by=['year', 'month'],
+                                                                                   ascending=True).reset_index(drop=True)
         fig_linechart.add_trace(go.Scatter(x=[fig_data['year'], fig_data['month']],
                                            y=fig_data['value'],
                                            name=line_products[i],
-#                                           name=line_data['product'].unique()[i],
-                                           line=dict(color=colors[i]),
+                                           line=dict(color=colors[2-i]),
                                            mode='lines',
                                            hovertemplate="Year: %{x[0]} <br> Month: %{x[1]} </br> Value: %{y}"))
 
     fig_linechart.update_layout(height=400,
-                                title=line_title,
-                                yaxis_title="GWh")
+                                yaxis_title="GWh",
+                                margin=go.layout.Margin(t=30))
 
     return fig_linechart, line_title
 
 
-@app.callback(Output('product-table-share', 'children'),
+@app.callback(Output('product-table', 'children'),
+              Output('table-title', 'children'),
               Input('apply-button', 'n_clicks'),
               Input('chosen-product', 'value'),
+              Input('chosen-val-table', 'value'),
               State('chosen-country', 'value'),
               State('year-range-slider', 'value'))
-def update_product_table(n_clicks, product, country, years):
+def update_product_table(n_clicks, product, var, country, years):
 
     if years[0] == years[1]:
         chosen_years = [years[0]]
+        table_title = f"The descriptive statistics for {var.lower()} for {product.lower()} in {country} in {years[0]}"
     else:
         chosen_years = [x for x in range(years[0], years[1])]
+        table_title = f"The descriptive statistics for {var.lower()} for {product.lower()} in {country} between {years[0]}-{years[1]}"
 
     df_data = data[data['country'] == country]
     df_data = df_data[df_data['product'] == product]
     df_data = df_data[df_data['year'].isin(chosen_years)]
 
-    df_means = round(df_data.groupby(['product', 'year']).mean(['share', 'value']).reset_index(), 3)
-    df_medians = round(df_data.groupby(['product', 'year']).median(['share', 'value']).reset_index(), 3)
-    df_variances = round(df_data.groupby(['product', 'year'])[['share', 'value']].agg('var'), 3).reset_index()
-    df_stds = round(df_data.groupby(['product', 'year'])[['share', 'value']].agg('std'), 3).reset_index()
-    df_mins = round(df_data.groupby(['product', 'year']).min(['share', 'value']).reset_index(), 3)
-    df_maxs = round(df_data.groupby(['product', 'year']).max(['share', 'value']).reset_index(), 3)
+    data_grouped = df_data.groupby(['year'])
+
+    df_means = round(data_grouped.mean(['share', 'value']).reset_index(), 3)
+    df_medians = round(data_grouped.median(['share', 'value']).reset_index(), 3)
+    df_variances = round(data_grouped[['share', 'value']].agg('var'), 3).reset_index()
+    df_stds = round(data_grouped[['share', 'value']].agg('std'), 3).reset_index()
+    df_mins = round(data_grouped.min(['share', 'value']).reset_index(), 3)
+    df_maxs = round(data_grouped.max(['share', 'value']).reset_index(), 3)
 
     data_share = {'Year': df_data['year'].unique(),
                   'Mean': df_means.share,
@@ -223,34 +246,25 @@ def update_product_table(n_clicks, product, country, years):
                   'Min': df_mins.share,
                   'Max': df_maxs.share}
 
-    #df_share = data_share.to_dict('records')
     df_share = pd.DataFrame.from_dict(data_share)
-    #df_share_table = html.Div(dash_table.DataTable(dta=df_share,
-    #                                               columns=[x for x in df_share.columns]))
 
-    output = html.Div(
-        [
-            dash_table.DataTable(
-                data=df_share.to_dict('records'),
-            )
-        ]
-    )
+    data_value = {'Year': df_data['year'].unique(),
+                  'Mean': df_means.value,
+                  'Median': df_medians.value,
+                  'Variance': df_variances.value,
+                  'SD': df_stds.value,
+                  'Min': df_mins.value,
+                  'Max': df_maxs.value}
 
+    df_value = pd.DataFrame.from_dict(data_value)
 
+    output_share = html.Div([dash_table.DataTable(data=df_share.to_dict('records'))])
+    output_value = html.Div([dash_table.DataTable(data=df_value.to_dict('records'))])
 
-    # fig_bar = get_barchart(barchart_data,
-    #                        x='product',
-    #                        y=['share'],
-    #                        color_var='product',
-    #                        colors=px.colors.qualitative.Prism,
-    #                        width=900,
-    #                        x_title='Energy Source',
-    #                        y_title='Average share in percentage',
-    #                        title=bar_title,
-    #                        bar_width=1)
-
-    return output
-
+    if var == 'Energy share':
+        return output_share, table_title
+    else:
+        return output_value, table_title
 
 
 if __name__ == "__main__":
