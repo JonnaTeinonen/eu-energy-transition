@@ -28,15 +28,6 @@ data = data[data['country'].isin(eu_countries)]
 country_var = data.country.unique()
 year_var = data.year.unique()
 
-#Bar chart
-# bar_products = ['Hydro', 'Wind', 'Solar', 'Coal', 'Oil', 'Natural gas', 'Others', 'Nuclear', 'Other renewables']
-# bar_data = data[data['product'].isin(bar_products)]
-# bar_data = bar_data[bar_data['country'] == 'Netherlands']
-# bar_data = bar_data[bar_data['year'] == 2012]
-# barchart_data = bar_data.groupby(['product'])['share'].mean().reset_index()
-#
-# fig_bar = get_barchart(barchart_data, x='product', y=['share'], color_var='product')
-
 
 # HELP FUNCTIONS
 
@@ -73,7 +64,7 @@ sidebar = html.Div([
 
     dbc.Row(dcc.RadioItems(id='energy-grouping',
                            options=[' Grouped', ' Granular'],
-                           value=' Grouped'),
+                           value=' Granular'),
             style={'padding': 10, 'flex': 1, 'padding-left': 10},
             className='text-white'),
 
@@ -113,22 +104,23 @@ content = html.Div([
 
 
     dbc.Row([
-        dbc.Col([html.P(id='bar-title', style={'margin-top':'15px'}),
-                 dcc.Graph(id='barchart-products')
+        dbc.Col([dbc.Row([html.P(id='bar-title', style={'margin-top':'15px'})],
+                         style={'textAlign': 'center'}),
+                 dbc.Row([dcc.Graph(id='barchart-products')])
                  ]),
-        dbc.Col([html.P(id='treemap-title', style={'margin-top':'15px'}),
-                 dcc.Graph(id='treemap-countries')
+        dbc.Col([dbc.Row([html.P(id='treemap-title', style={'margin-top':'15px'})],
+                         style={'height': '5vh', 'textAlign': 'center'}),
+                 dbc.Row([dcc.Graph(id='treemap-countries')])
                  ])
     ]),
 
-    dbc.Row(html.Div([html.Label("Hello")])),
-
-    dbc.Row([html.P(id='line-title')]),
+    dbc.Row([html.P(id='line-title')], style={'textAlign': 'center'}),
     dbc.Row([dcc.Graph(id='linechart-value')]),
     dbc.Row([dcc.Dropdown(id='chosen-product',
                          multi=False,
                          value='Renewables',
-                         options=['Fossil fuels', 'Nuclear', 'Renewables'],
+                         options=['Fossil fuels', 'Nuclear', 'Renewables', 'Coal', 'Hydro', 'Nuclear', 'Wind',
+                                  'Solar', 'Natural gas', 'Oil'],
                          style={'width': '280px'})])
 
     # dbc.Row([html.Label(id='line-title', style={'margin-top':'50px',
@@ -172,9 +164,9 @@ def update_barchart_products(n_clicks, countries: list, years: list[int], groupi
         return product_share / country_total.values[0]
 
     if grouping == ' Granular':
-        product_names, product_col = products(True)
-    else:
         product_names, product_col = products(False)
+    else:
+        product_names, product_col = products(True)
 
     if years[0] == years[1]:
         chosen_years = [years[0]]
@@ -207,7 +199,7 @@ def update_barchart_products(n_clicks, countries: list, years: list[int], groupi
                      y='country',
                      color='product',
                      color_discrete_map=product_col,
-                     width=700,
+                     width=1000,
                      height=470,
                      orientation='h',
                      category_orders={"product": product_names})  # Product category order in the legend/graph
@@ -232,9 +224,9 @@ def update_barchart_products(n_clicks, countries: list, years: list[int], groupi
 def update_treemap_countries(n_clicks, countries: list[str], years: list[int], grouping: str):
 
     if grouping == ' Granular':
-        product_names, product_col = products(True)
-    else:
         product_names, product_col = products(False)
+    else:
+        product_names, product_col = products(True)
 
     if years[0] == years[1]:
         chosen_years = [years[0]]
@@ -258,7 +250,7 @@ def update_treemap_countries(n_clicks, countries: list[str], years: list[int], g
                              path=['country', 'product'],
                              values='value',
                              color='product',
-                             width=800,
+                             width=1000,
                              height=500,
                              color_discrete_map=product_col)
 
@@ -277,47 +269,47 @@ def update_treemap_countries(n_clicks, countries: list[str], years: list[int], g
               State('year-range-slider', 'value'),
               State('energy-grouping', 'value'),
               State('chosen-product', 'value'))
-def update_linechart_value(n_clicks, countries, years, grouping, product):
-    if grouping == ' Granular':
-        product_names, product_col = products(True)
-    else:
-        product_names, product_col = products(False)
+def update_linechart_value(n_clicks, countries, years, grouping, chosen_product):
 
     if years[0] == years[1]:
         chosen_years = [years[0]]
-        line_title = f"The average amount of generated electricity in GWh per country in {years[0]}"
+        line_title = (f"The average amount of generated electricity with {chosen_product.lower()} in GWh per country "
+                      f"in {years[0]}")
     else:
         chosen_years = [x for x in range(years[0], years[1])]
-        line_title = f"The average amount of generated electricity in GWh per country between {years[0]}-{years[1]}"
+        line_title = (f"The average amount of generated electricity  with {chosen_product.lower()} in GWh per country "
+                      f"between {years[0]}-{years[1]}")
 
     if type(countries) != list:
         chosen_countries = [countries]
     else:
         chosen_countries = countries
 
-    line_data = data[data['product'].isin(product_names)]
+    line_data = data[data['product'] == chosen_product]
     line_data = line_data[line_data['country'].isin(chosen_countries)]
     line_data = line_data[line_data['year'].isin(chosen_years)]
-#    line_data_sorted = line_data.sort_values(by=['year', 'month'], ascending=True).reset_index(drop=True)
 
-    linechart_col = list(product_col.values())[:-1]
+    # Creating an empty figure with the correct timeline
     fig_linechart = go.Figure()
+    fig_linechart.add_trace(go.Scatter(x=[line_data['year'], line_data['month']],
+                                           y=pd.Series(dtype=object),
+                                           mode='lines'))
 
-    print("COLORS FOR LINE CHART")
-    print(list(product_col.values())[:-1])
-
-    for i in range(len(product_names)):
-        fig_data = line_data[line_data['product'] == product_names[i]].sort_values(by=['year', 'month'],
+    # Adding information of the value of the chosen product for all the chosen countries into the timeline
+    for i in range(len(chosen_countries)):
+        fig_data = line_data[line_data['country'] == chosen_countries[i]].sort_values(by=['year', 'month'],
                                                                                    ascending=True).reset_index(drop=True)
         fig_linechart.add_trace(go.Scatter(x=[fig_data['year'], fig_data['month']],
                                            y=fig_data['value'],
-                                           name=product_names[i],
-                                           line=dict(color=linechart_col[i]),
+                                           name=chosen_countries[i],
+                                           line=dict(color=px.colors.qualitative.Dark24[i]),
                                            mode='lines',
-                                           hovertemplate="Year: %{x[0]} <br> Month: %{x[1]} </br> Value: %{y}"))
+                                           hovertemplate="<b>Year:</b> %{x[0]} <br> <b>Month:</b> %{x[1]} "
+                                                         "<br> <b>Value:</b> %{y}"))
 
     fig_linechart.update_layout(height=400,
                                 yaxis_title="GWh",
+                                legend_title="Country",
                                 margin=go.layout.Margin(t=30))
 
     return fig_linechart, line_title
