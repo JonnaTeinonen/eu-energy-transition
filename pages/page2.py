@@ -1,5 +1,5 @@
 import dash
-from dash import Dash, html, dcc, callback, Output, Input, State, dash_table
+from dash import Dash, html, dcc, callback, Output, Input, State, dash_table, callback
 import dash_bootstrap_components as dbc
 import matplotlib
 from matplotlib.pyplot import cm
@@ -54,7 +54,6 @@ def products(category: bool = False):
 
 
 # APP
-app = dash.Dash(external_stylesheets=[dbc.themes.SANDSTONE])
 
 sidebar = html.Div([
     dbc.Row([html.P('Choose energy source grouping:',
@@ -62,7 +61,7 @@ sidebar = html.Div([
                     )],
             className='text-white'),
 
-    dbc.Row(dcc.RadioItems(id='energy-grouping',
+    dbc.Row(dcc.RadioItems(id='energy-grouping-page2',
                            options=[' Grouped', ' Granular'],
                            value=' Granular'),
             style={'padding': 10, 'flex': 1, 'padding-left': 10},
@@ -72,7 +71,7 @@ sidebar = html.Div([
              html.P("Choose the country:",
                     style={'margin-top': '20px'})],
         className='text-white'),
-    dbc.Row(dcc.Dropdown(id='chosen-countries',
+    dbc.Row(dcc.Dropdown(id='chosen-countries-page2',
                          multi=True,
                          value='Netherlands',
                          options=[{'label': x, 'value': x} for x in country_var],
@@ -80,7 +79,7 @@ sidebar = html.Div([
     dbc.Row(html.P()),
 
     dbc.Row(
-        html.Button(id='apply-button', n_clicks=0, children='apply',
+        html.Button(id='apply-button-page2', n_clicks=0, children='apply',
                                 style={'margin-top': '2px'},
                                 className='bg-dark text-white'))
 ])
@@ -89,34 +88,30 @@ content = html.Div([
     dbc.Row(style={'height': '2vh'}, className='bg-primary'),
     dbc.Row([
         html.P('The Electricity Production in European Countries in 2010-2022',
-               style={'font-weight': 'bold',
-                      'font-size': 25}),
-    ],
-        style={'height': '5vh', 'textAlign': 'center'}, className='bg-primary text-white font-weight-bold'
+               style={'font-weight': 'bold', 'font-size': 25, 'height': '5vh', 'textAlign': 'center'}),
+    ], className='bg-primary text-white font-weight-bold'
     ),
     dbc.Row([html.P('Choose the time range:', style={'margin-top': '15px', 'margin-bottom': '10px'}),
              dcc.RangeSlider(2010,
                              2023,
                              1,
                              value=[2010, 2023],
-                             id='year-range-slider',
+                             id='year-range-slider-page2',
                              marks={i: '{}'.format(i) for i in range(2010, 2024)})]),
 
 
     dbc.Row([
-        dbc.Col([dbc.Row([html.P(id='bar-title', style={'margin-top':'15px'})],
-                         style={'textAlign': 'center'}),
-                 dbc.Row([dcc.Graph(id='barchart-products')])
+        dbc.Col([dbc.Row([html.P(id='bar-title-page2', style={'margin-top':'15px', 'font-weight': 'bold', 'textAlign': 'center'})]),
+                 dbc.Row([dcc.Graph(id='barchart-products-page2')])
                  ]),
-        dbc.Col([dbc.Row([html.P(id='treemap-title', style={'margin-top':'15px'})],
-                         style={'height': '5vh', 'textAlign': 'center'}),
-                 dbc.Row([dcc.Graph(id='treemap-countries')])
+        dbc.Col([dbc.Row([html.P(id='treemap-title-page2', style={'margin-top':'15px', 'height': '5vh', 'font-weight': 'bold', 'textAlign': 'center'})]),
+                 dbc.Row([dcc.Graph(id='treemap-countries-page2')])
                  ])
     ]),
 
-    dbc.Row([html.P(id='line-title')], style={'textAlign': 'center'}),
-    dbc.Row([dcc.Graph(id='linechart-value')]),
-    dbc.Row([dcc.Dropdown(id='chosen-product',
+    dbc.Row([html.P(id='line-title-page2')], style={'font-weight': 'bold', 'textAlign': 'center'}),
+    dbc.Row([dcc.Graph(id='linechart-value-page2')]),
+    dbc.Row([dcc.Dropdown(id='chosen-product-page2',
                          multi=False,
                          value='Renewables',
                          options=['Fossil fuels', 'Nuclear', 'Renewables', 'Coal', 'Hydro', 'Nuclear', 'Wind',
@@ -128,8 +123,10 @@ content = html.Div([
     #          dcc.Graph(id='linechart-value')])
 ])
 
+# Creates a link
+dash.register_page(__name__)
 
-app.layout = dbc.Container([
+layout = dbc.Container([
     dbc.Row([
         dbc.Col(sidebar, width=2, className='bg-primary'),
         dbc.Col(content, width=10)],
@@ -146,16 +143,17 @@ fluid=True)
 ############### CALLBACKS ###############
 #########################################
 
-@app.callback(Output('barchart-products', 'figure'),
-              Output('bar-title', 'children'),
-              Input('apply-button', 'n_clicks'),
-              State('chosen-countries', 'value'),
-              State('year-range-slider', 'value'),
-              State('energy-grouping', 'value'))
-def update_barchart_products(n_clicks, countries: list, years: list[int], grouping: str):
+@callback(Output('barchart-products-page2', 'figure'),
+              Output('bar-title-page2', 'children'),
+              Input('apply-button-page2', 'n_clicks'),
+              State('chosen-countries-page2', 'value'),
+              State('year-range-slider-page2', 'value'),
+              State('energy-grouping-page2', 'value'))
+def update_barchart_products_page2(n_clicks, countries: list, years: list[int], grouping: str):
+    """TODO: Change the decimal format to percentage"""
 
     def divide_by_country_total(df_row, lookup_df: pd.DataFrame):
-        """Computes the average share for eac product per country"""
+        """Computes the average share for each product per country"""
         country = df_row['country']
         product_share = df_row.share
         lookup_df = lookup_df[lookup_df['country'].isin([country])]
@@ -193,6 +191,7 @@ def update_barchart_products(n_clicks, countries: list, years: list[int], groupi
     barchart_data = barchart_data_sumproduct
     barchart_data['avg_share'] = barchart_data.apply(
         lambda row: divide_by_country_total(row, barchart_data_sumtotal), axis=1)
+    barchart_data['avg_share'] = barchart_data['avg_share'] * 100
 
     fig_bar = px.bar(barchart_data,
                      x='avg_share',
@@ -215,13 +214,13 @@ def update_barchart_products(n_clicks, countries: list, years: list[int], groupi
     return fig_bar, bar_title
 
 
-@app.callback(Output('treemap-countries', 'figure'),
-              Output('treemap-title', 'children'),
-              Input('apply-button', 'n_clicks'),
-              State('chosen-countries', 'value'),
-              State('year-range-slider', 'value'),
-              State('energy-grouping', 'value'))
-def update_treemap_countries(n_clicks, countries: list[str], years: list[int], grouping: str):
+@callback(Output('treemap-countries-page2', 'figure'),
+              Output('treemap-title-page2', 'children'),
+              Input('apply-button-page2', 'n_clicks'),
+              State('chosen-countries-page2', 'value'),
+              State('year-range-slider-page2', 'value'),
+              State('energy-grouping-page2', 'value'))
+def update_treemap_countries_page2(n_clicks, countries: list[str], years: list[int], grouping: str):
 
     if grouping == ' Granular':
         product_names, product_col = products(False)
@@ -262,14 +261,14 @@ def update_treemap_countries(n_clicks, countries: list[str], years: list[int], g
     return fig_treemap, treemap_title
 
 
-@app.callback(Output('linechart-value', 'figure'),
-              Output('line-title', 'children'),
-              Input('apply-button', 'n_clicks'),
-              State('chosen-countries', 'value'),
-              State('year-range-slider', 'value'),
-              State('energy-grouping', 'value'),
-              State('chosen-product', 'value'))
-def update_linechart_value(n_clicks, countries, years, grouping, chosen_product):
+@callback(Output('linechart-value-page2', 'figure'),
+              Output('line-title-page2', 'children'),
+              Input('apply-button-page2', 'n_clicks'),
+              State('chosen-countries-page2', 'value'),
+              State('year-range-slider-page2', 'value'),
+              State('energy-grouping-page2', 'value'),
+              State('chosen-product-page2', 'value'))
+def update_linechart_value_page2(n_clicks, countries, years, grouping, chosen_product):
 
     if years[0] == years[1]:
         chosen_years = [years[0]]
@@ -313,9 +312,3 @@ def update_linechart_value(n_clicks, countries, years, grouping, chosen_product)
                                 margin=go.layout.Margin(t=30))
 
     return fig_linechart, line_title
-
-
-
-
-if __name__ == "__main__":
-    app.run_server(debug=True)
