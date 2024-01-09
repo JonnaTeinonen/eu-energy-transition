@@ -61,6 +61,14 @@ content = html.Div([
                                  style={'margin-top': '15px', 'font-weight': 'bold', 'textAlign': 'center'})
                           ]),
 
+                 dbc.Row([dcc.Dropdown(id='chosen-val-barchart-page3',
+                                       multi=False,
+                                       value='Energy share',
+                                       options=['Energy share', 'Generated energy'],
+                                       style={'width': '200px',
+                                              'margin-left': '40px'})
+                          ]),
+
                  dbc.Row([dcc.Graph(id='barchart-products-page3')])
                  ]),
 
@@ -124,8 +132,9 @@ layout = dbc.Container([
           Output('bar-title-page3', 'children'),
           Input('chosen-country-page3', 'value'),
           Input('year-range-slider-page3', 'value'),
-          Input('energy-grouping-page3', 'value'))
-def update_barchart_products_page3(country: str, years: list[int], grouping: str):
+          Input('energy-grouping-page3', 'value'),
+          Input('chosen-val-barchart-page3', 'value'))
+def update_barchart_products_page3(country: str, years: list[int], grouping: str, chosen_val: str):
 
     if grouping == ' Granular':
         product_names, product_col = products(False)
@@ -134,8 +143,11 @@ def update_barchart_products_page3(country: str, years: list[int], grouping: str
 
     if years[0] == years[1]:
         chosen_years = [years[0]]
-        bar_title = (f"The average share of each energy source in the total energy generation in {country} "
-                     f"in {years[0]}")
+
+        if chosen_val == "Energy share":
+            bar_title = f"The total generated energy in GWh in {country} in {years[0]}"
+        else:
+            bar_title = f"The total generated energy in GWh in {country} in {years[0]}"
     else:
         chosen_years = [x for x in range(years[0], years[1])]
         bar_title = (f"The average share of each energy source in the total energy generation in {country} between "
@@ -145,27 +157,38 @@ def update_barchart_products_page3(country: str, years: list[int], grouping: str
     bar_data = bar_data[bar_data['year'].isin(chosen_years)]
     bar_data_product = bar_data[bar_data['product'].isin(product_names)]
 
-    barchart_data_sumproduct = bar_data_product.groupby(['product'])['share'].sum().reset_index()
+    if chosen_val == "Energy share":
+        barchart_data_sumproduct = bar_data_product.groupby(['product'])['share'].sum().reset_index()
+        total_data = bar_data[bar_data['product'] == 'Net electricity production']
+        barchart_data_sumtotal = total_data['share'].sum()
 
-    total_data = bar_data[bar_data['product'] == 'Net electricity production']
-    barchart_data_sumtotal = total_data['share'].sum()
+        barchart_data = barchart_data_sumproduct
+        # Changes the values from decimal format to percentages
+        barchart_data['avg'] = (barchart_data_sumproduct['share'] / barchart_data_sumtotal) * 100
 
-    barchart_data = barchart_data_sumproduct
-    barchart_data['avg_share'] = (barchart_data_sumproduct['share'] / barchart_data_sumtotal) * 100
+        hovertext = "<b>Share:</b> %{y}"
+        y_axis_title = "Average share in percentage"
+
+    else:
+        barchart_data = bar_data_product.groupby(['product'])['value'].sum().reset_index()
+        barchart_data['avg'] = barchart_data['value']
+
+        hovertext = "<b>Country:</b> %{y} <br> <b>GWh:</b> %{y}"
+        y_axis_title = "Total generated energy in GWh"
 
     fig_bar = px.bar(barchart_data,
                      x='product',
-                     y=['avg_share'],
+                     y=['avg'],
                      color='product',
                      color_discrete_sequence=list(product_col.values()),
                      width=900,
                      height=550,
                      category_orders={"product": product_names})
 
-    fig_bar.update_traces(width=0.5, hovertemplate="<b>Share:</b> %{y}")
+    fig_bar.update_traces(width=0.5, hovertemplate=hovertext)
 
     fig_bar.update_layout(xaxis_title='Energy Source',
-                          yaxis_title='Average share in percentage',
+                          yaxis_title=y_axis_title,
                           showlegend=True,
                           legend_title="",
                           xaxis_type='category',
@@ -223,7 +246,9 @@ def update_linechart_value_page3(country, years, grouping):
                                            name=product_names[i],
                                            line=dict(color=list(product_col.values())[i]),
                                            mode='lines',
-                                           hovertemplate="Year: %{x[0]} <br> Month: %{x[1]} </br> Value: %{y}"))
+                                           hovertemplate="<b>Year:</b> %{x|%Y} <br> "
+                                                         "<b>Month:</b> %{x|%B}<br> "
+                                                         "<b>GWh:</b> %{y}"))
 
     fig_linechart.update_layout(height=400,
                                 yaxis_title="GWh",

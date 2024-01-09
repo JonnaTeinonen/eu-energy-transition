@@ -12,13 +12,13 @@ data.columns = col_names_low
 
 # Choosing the EU-countries
 eu_countries = ['Austria' 'Belgium', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece',
-                'Hungary', 'Iceland,' 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Netherlands', 'Norway',
+                'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Netherlands', 'Norway',
                 'Poland', 'Portugal', 'Slovak Republic', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Bulgaria',
                 'Croatia', 'Cyprus', 'Malta', 'North Macedonia', 'Romania']
 DATA: pd.DataFrame = data[data['country'].isin(eu_countries)]
 
 # Variables
-UNIQUE_COUNTRIES: list[str] = data.country.unique()
+UNIQUE_COUNTRIES: list[str] = DATA.country.unique()
 # YEAR_VAR: list[int] = data.year.unique()
 
 
