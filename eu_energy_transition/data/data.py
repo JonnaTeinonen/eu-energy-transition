@@ -11,16 +11,18 @@ col_names_low.extend(col_names[9:])
 data.columns = col_names_low
 
 # Choosing the EU-countries
-countries = ['Austria' 'Belgium', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece',
-                'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Netherlands', 'Norway',
-                'Poland', 'Portugal', 'Slovak Republic', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Bulgaria',
-                'Croatia', 'Cyprus', 'Malta', 'Romania', 'United Kingdom', 'North Macedonia']
-DATA: pd.DataFrame = data[data['country'].isin(countries)]
+europe_countries = ['Austria', 'Belgium', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany',
+                    'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg',
+                    'Netherlands', 'Norway', 'Poland', 'Portugal', 'Slovak Republic', 'Slovenia', 'Spain', 'Sweden',
+                    'Switzerland', 'Bulgaria', 'Croatia', 'Cyprus', 'Malta', 'Romania', 'United Kingdom',
+                    'North Macedonia']
+europe_countries.sort()
+
+DATA: pd.DataFrame = data[data['country'].isin(europe_countries)]
 
 # Variables
 UNIQUE_COUNTRIES: list[str] = DATA.country.unique()
 # YEAR_VAR: list[int] = data.year.unique()
-
 
 # HELP FUNCTIONS
 def products(category: bool = False) -> tuple[list[str], dict[str, str]]:

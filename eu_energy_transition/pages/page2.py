@@ -133,11 +133,11 @@ def update_barchart_products_page2(countries: list, years: list[int], grouping: 
 
     if years[0] == years[1]:
         chosen_years = [years[0]]
-        bar_title = (f"The average share of each energy source in the total energy generation per country "
+        bar_title = (f"The average share of each energy source per country "
                      f"in {years[0]}")
     else:
         chosen_years = [x for x in range(years[0], years[1])]
-        bar_title = (f"The average share of each energy source in the total energy generation per country between "
+        bar_title = (f"The average share of each energy source per country between "
                      f"{years[0]}-{years[1]}")
 
     if type(countries) != list:

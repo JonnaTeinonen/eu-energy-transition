@@ -12,8 +12,6 @@ from eu_energy_transition.data.data import DATA, products
 # Defines the page
 dash.register_page(__name__, path='/', name='European Countries')
 
-
-
 # CONTENT
 sidebar = html.Div([])
 content = html.Div([
@@ -158,7 +156,7 @@ def update_barchart_products_page1(years: list[int], chosen_val: str, grouping: 
         chosen_years = [years[0]]
 
         if chosen_val == "Energy share":
-            bar_title = (f"The average share of each energy source in the total energy generation per country "
+            bar_title = (f"The average share of each energy source per country "
                          f"in {years[0]}")
         else:
             bar_title = f"The total generated energy in GWh for each energy source per country in {years[0]}"
@@ -166,7 +164,7 @@ def update_barchart_products_page1(years: list[int], chosen_val: str, grouping: 
         chosen_years = [x for x in range(years[0], years[1])]
 
         if chosen_val == "Energy share":
-            bar_title = (f"The average share of each energy source in the total energy generation per country "
+            bar_title = (f"The average share of each energy source per country "
                          f"between {years[0]}-{years[1]}")
         else:
             bar_title = (f"The total generated energy in GWh for each energy source per country between "
@@ -206,9 +204,6 @@ def update_barchart_products_page1(years: list[int], chosen_val: str, grouping: 
             fig = go.Figure()
 
             for j in range(3):
-                print("FIRST FIGURE")
-                print("J: ", j)
-                print("product name: ", product_names[j])
                 fig_data = barchart_data[barchart_data['product'] == product_names[j]]
 
                 fig.add_trace(go.Bar(x=fig_data['avg'],
@@ -223,9 +218,7 @@ def update_barchart_products_page1(years: list[int], chosen_val: str, grouping: 
                 fig_bar.add_trace(fig, row=1, col=1)
 
         if i == 1 and grouping == 'Granular':
-            print("SECOND FIGURE")
-            print("C: ", c)
-            print("product name: ", product_names[c])
+
             fig_data = barchart_data[barchart_data['product'] == product_names[c]]
             fig_bar.add_trace(go.Bar(x=fig_data['avg'],
                                      y=fig_data['country'],
@@ -239,9 +232,6 @@ def update_barchart_products_page1(years: list[int], chosen_val: str, grouping: 
             fig = go.Figure()
 
             for j in range(3):
-                print("THIRD FIGURE")
-                print("J+C: ", j+c)
-                print("product name: ", product_names[j+c])
                 fig_data = barchart_data[barchart_data['product'] == product_names[j+c]]
 
                 fig.add_trace(go.Bar(x=fig_data['avg'],
@@ -255,9 +245,6 @@ def update_barchart_products_page1(years: list[int], chosen_val: str, grouping: 
                 fig_bar.add_trace(fig, row=1, col=3)
 
         if grouping == "Grouped":
-            print("OTHER FIGURE")
-            print("C: ", i)
-            print("product name: ", product_names[i])
             fig_data = barchart_data[barchart_data['product'] == product_names[i]]
             fig_bar.add_trace(go.Bar(x=fig_data['avg'],
                                      y=fig_data['country'],
@@ -288,11 +275,11 @@ def update_treemap_countries_page1(years: list[int], chosen_product):
     if years[0] == years[1]:
         chosen_years = [years[0]]
         treemap_title = (f"The total amount of generated energy with {chosen_product.lower()} per country in "
-                         f"{years[0]} in European Countries")
+                         f"{years[0]}")
     else:
         chosen_years = [x for x in range(years[0], years[1])]
         treemap_title = (f"The total amount of generated energy with {chosen_product.lower()} per country between "
-                         f"{years[0]}-{years[1]} in European Countries")
+                         f"{years[0]}-{years[1]}")
 
     figure_data = DATA[DATA['year'].isin(chosen_years)]
     figure_data = figure_data[figure_data['product'] == chosen_product]
@@ -335,8 +322,8 @@ def update_linechart_value_page1(years, grouping, monthlydata, trendlinedata):
                       f"in {years[0]}")
     else:
         chosen_years = [x for x in range(years[0], years[1])]
-        line_title = (f"The total amount of generated electricity in GWh for each energy source per in European "
-                      f"Countries between {years[0]}-{years[1]}")
+        line_title = (f"The total amount of generated electricity in GWh for each energy source in European Countries "
+                      f"between {years[0]}-{years[1]}")
 
     line_data = DATA[DATA['product'].isin(product_names)]
     line_data = line_data[line_data['year'].isin(chosen_years)]

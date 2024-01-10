@@ -150,7 +150,7 @@ def update_barchart_products_page3(country: str, years: list[int], grouping: str
             bar_title = f"The total generated energy in GWh in {country} in {years[0]}"
     else:
         chosen_years = [x for x in range(years[0], years[1])]
-        bar_title = (f"The average share of each energy source in the total energy generation in {country} between "
+        bar_title = (f"The average share of each energy source generation in {country} between "
                      f"{years[0]}-{years[1]}")
 
     bar_data = DATA[DATA['country'] == country]
