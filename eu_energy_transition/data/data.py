@@ -2,7 +2,8 @@ import pandas as pd
 
 # DATA
 import os; print(os.getcwd())
-data = pd.read_csv('./data/data.csv')
+# data = pd.read_csv('./data/data.csv')
+data = pd.read_csv('./data.csv')
 
 # Changing the column names to lowercase
 col_names = list(data.columns)
