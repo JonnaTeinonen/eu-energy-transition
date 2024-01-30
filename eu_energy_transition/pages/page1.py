@@ -334,8 +334,6 @@ def update_linechart_value_page1(years, grouping, monthlydata, trendlinedata):
     fig_linechart.add_trace(go.Scatter(x=line_data['time'], y=pd.Series(dtype=object), mode='lines'))
 
     # Adding information of the value of the chosen product for all the chosen countries into the timeline
-    fig_linechart = go.Figure()
-
     for i in range(len(product_names)):
         fig_data = (line_data[line_data['product'] == product_names[i]].
                     sort_values(by=['time'], ascending=True).reset_index(drop=True))
