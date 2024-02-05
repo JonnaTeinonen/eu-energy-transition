@@ -3,7 +3,10 @@ from dash import html
 import dash_bootstrap_components as dbc
 
 # APP
-app = dash.Dash(external_stylesheets=[dbc.themes.SANDSTONE], use_pages=True)
+app = dash.Dash(external_stylesheets=[dbc.themes.SANDSTONE],
+                use_pages=True,
+                meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1'}]
+                )
 
 
 app.layout = html.Div([

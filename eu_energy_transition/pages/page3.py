@@ -12,16 +12,16 @@ dash.register_page(__name__, name='Individual Countries')
 
 # APP
 sidebar = html.Div([
-    dbc.Row([html.P('Energy source grouping:', style={'margin-top': '110px', 'margin-bottom': '5px'})],
+    dbc.Row([html.P('Energy source grouping:', style={'margin-top': '10vh', 'margin-left': '2vh'})],
             className='text-white'
             ),
 
     dbc.Row(dcc.RadioItems(id='energy-grouping-page3', options=[' Grouped', ' Granular'], value=' Granular'),
-            style={'padding': 10, 'flex': 1, 'padding-left': 10},
+            style={'padding': 10, 'flex': 1, 'padding-left': 10, 'margin-left': '1vh'},
             className='text-white'
             ),
 
-    dbc.Row([html.P("Choose the country:", style={'margin-top': '20px'})],
+    dbc.Row([html.P("Choose the country:", style={'margin-top': '0.5vh', 'margin-left': '2vh'})],
             className='text-white'
             ),
 
@@ -29,7 +29,7 @@ sidebar = html.Div([
                          multi=False,
                          value='Netherlands',
                          options=[{'label': x, 'value': x} for x in UNIQUE_COUNTRIES],
-                         style={'width': '175px'}
+                         style={'width': '20vh', 'margin-left': '1vh'}
                          )
             )
 ])
@@ -47,7 +47,7 @@ content = html.Div([
     ], className='bg-primary text-white font-weight-bold'
     ),
 
-    dbc.Row([html.P('Choose the time range:', style={'margin-top': '15px', 'margin-bottom': '10px'}),
+    dbc.Row([html.P('Choose the time range:', style={'margin-top': '1vh', 'margin-bottom': '1vh'}),
              dcc.RangeSlider(2010,
                              2023,
                              1,
@@ -58,7 +58,10 @@ content = html.Div([
 
     dbc.Row([
         dbc.Col([dbc.Row([html.P(id='bar-title-page3',
-                                 style={'margin-top': '15px', 'font-weight': 'bold', 'textAlign': 'center'})
+                                 style={'margin-top': '15px',
+                                        'font-weight': 'bold',
+                                        'textAlign': 'center',
+                                        'font-size': 20})
                           ]),
 
                  dbc.Row([dcc.Dropdown(id='chosen-val-barchart-page3',
@@ -77,7 +80,8 @@ content = html.Div([
                                      style={'margin-top': '15px',
                                             'margin-bottom': '15px',
                                             'font-weight': 'bold',
-                                            'textAlign': 'center'})
+                                            'textAlign': 'center',
+                                            'font-size': 20})
                           ]),
 
                  dbc.Row([dcc.Dropdown(id='chosen-product-page3',
@@ -102,13 +106,13 @@ content = html.Div([
                                        style={'width': '200px', 'margin-left': '15px', 'margin-bottom': '15px'})
                           ]),
 
-                 dbc.Row([html.Div(id="product-table-page3", style={'margin-bottom': '15px'})]),
+                 dbc.Row([html.Div(id="product-table-page3", style={'margin-bottom': '3vh'})]),
 
                  ])
     ]),
 
     dbc.Row([html.P(id='line-title-page3',
-                    style={'font-weight': 'bold', 'textAlign': 'center'})
+                    style={'font-weight': 'bold', 'textAlign': 'center', 'font-size': 20})
              ]),
 
     dbc.Row([dcc.Graph(id='linechart-value-page3')])
@@ -116,8 +120,8 @@ content = html.Div([
 
 layout = dbc.Container([
     dbc.Row([
-        dbc.Col(sidebar, width=1, className='bg-primary'),
-        dbc.Col(content, width=11)
+        dbc.Col(sidebar, className='bg-primary', xs=2, sm=2, md=2, lg=2),
+        dbc.Col(content, xs=10, sm=10, md=10, lg=10)
     ],
         style={'height': '95vh'}        # Viewport height set to 95%
     )
@@ -181,8 +185,8 @@ def update_barchart_products_page3(country: str, years: list[int], grouping: str
                      y=['avg'],
                      color='product',
                      color_discrete_sequence=list(product_col.values()),
-                     width=900,
-                     height=550,
+#                     width=900,
+#                     height=550,
                      category_orders={"product": product_names})
 
     fig_bar.update_traces(width=0.5, hovertemplate=hovertext)
@@ -250,8 +254,7 @@ def update_linechart_value_page3(country, years, grouping):
                                                          "<b>Month:</b> %{x|%B}<br> "
                                                          "<b>GWh:</b> %{y}"))
 
-    fig_linechart.update_layout(height=400,
-                                yaxis_title="GWh",
+    fig_linechart.update_layout(yaxis_title="GWh",
                                 legend_title="Energy source",
                                 margin=go.layout.Margin(t=30))
 

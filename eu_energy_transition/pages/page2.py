@@ -11,16 +11,16 @@ dash.register_page(__name__, name='Country Comparison')
 
 # APP
 sidebar = html.Div([
-    dbc.Row([html.P('Energy source grouping:', style={'margin-top': '110px', 'margin-bottom': '5px'})],
+    dbc.Row([html.P('Energy source grouping:', style={'margin-top': '10vh', 'margin-left': '2vh'})],
             className='text-white'
             ),
 
     dbc.Row(dcc.RadioItems(id='energy-grouping-page2', options=[' Grouped', ' Granular'], value=' Granular'),
-            style={'padding': 10, 'flex': 1, 'padding-left': 10},
+            style={'padding': 10, 'flex': 1, 'padding-left': 10,  'margin-left': '1vh'},
             className='text-white'
             ),
 
-    dbc.Row([html.P("Choose the country:", style={'margin-top': '20px'})],
+    dbc.Row([html.P("Choose the country:", style={'margin-top': '0.5vh', 'margin-left': '2vh'})],
             className='text-white'
             ),
 
@@ -28,7 +28,7 @@ sidebar = html.Div([
                          multi=True,
                          value='Netherlands',
                          options=[{'label': x, 'value': x} for x in UNIQUE_COUNTRIES],
-                         style={'width': '175px'})
+                         style={'width': '20vh', 'margin-left': '1vh'})
             )
 ])
 
@@ -45,7 +45,7 @@ content = html.Div([
     ], className='bg-primary text-white font-weight-bold'
     ),
 
-    dbc.Row([html.P('Choose the time range:', style={'margin-top': '15px', 'margin-bottom': '10px'}),
+    dbc.Row([html.P('Choose the time range:', style={'margin-top': '1vh', 'margin-bottom': '1vh'}),
              dcc.RangeSlider(2010,
                              2023,
                              1,
@@ -56,24 +56,31 @@ content = html.Div([
 
     dbc.Row([
         dbc.Col([dbc.Row([html.P(id='bar-title-page2',
-                                 style={'margin-top': '15px', 'font-weight': 'bold', 'textAlign': 'center'})
+                                 style={'margin-top': '15px',
+                                        'font-weight': 'bold',
+                                        'textAlign': 'center',
+                                        'font-size': 20})
                           ]),
 
                  dbc.Row([dcc.Graph(id='barchart-products-page2')])
-                 ]),
+                 ], xs=6, sm=6, md=6, lg=6),
 
         dbc.Col([dbc.Row([html.P(id='treemap-title-page2',
                                  style={'margin-top': '15px',
                                         'height': '5vh',
                                         'font-weight': 'bold',
-                                        'textAlign': 'center'})
+                                        'textAlign': 'center',
+                                        'font-size': 20})
                           ]),
 
                  dbc.Row([dcc.Graph(id='treemap-countries-page2')])
-                 ])
+                 ], xs=6, sm=6, md=6, lg=6)
     ]),
 
-    dbc.Row([html.P(id='line-title-page2')], style={'font-weight': 'bold', 'textAlign': 'center'}),
+    dbc.Row([html.P(id='line-title-page2')],
+            style={'font-weight': 'bold',
+                   'textAlign': 'center',
+                   'font-size': 20}),
 
     dbc.Row([dcc.Dropdown(id='chosen-product-page2',
                           multi=False,
@@ -97,8 +104,8 @@ content = html.Div([
 
 layout = dbc.Container([
     dbc.Row([
-        dbc.Col(sidebar, width=1, className='bg-primary'),
-        dbc.Col(content, width=11)
+        dbc.Col(sidebar, className='bg-primary', xs=2, sm=2, md=2, lg=2),
+        dbc.Col(content, xs=10, sm=10, md=10, lg=10)
     ],
         style={'height': '95vh'}        # Viewport height set to 95%
     )
@@ -168,8 +175,6 @@ def update_barchart_products_page2(countries: list, years: list[int], grouping: 
                      y='country',
                      color='product',
                      color_discrete_map=product_col,
-                     width=1020,
-                     height=550,
                      orientation='h',
                      category_orders={"product": product_names})  # Product category order in the legend/graph
 
@@ -221,8 +226,6 @@ def update_treemap_countries_page2(countries: list[str], years: list[int], group
                              path=['All', 'country', 'product'],
                              values='value',
                              color='product',
-                             width=1200,
-                             height=550,
                              color_discrete_map=product_col)
 
     fig_treemap.update_traces(root_color="white",
@@ -277,8 +280,7 @@ def update_linechart_value_page2(countries, years, chosen_product):
                                                          "<b>Month:</b> %{x|%B}<br> "
                                                          "<b>GWh:</b> %{y}"))
 
-    fig_linechart.update_layout(height=350,
-                                yaxis_title="GWh",
+    fig_linechart.update_layout(yaxis_title="GWh",
                                 legend_title="Country",
                                 margin=go.layout.Margin(t=30))
 

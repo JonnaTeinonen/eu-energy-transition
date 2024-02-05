@@ -23,7 +23,7 @@ content = html.Div([
     ], className='bg-primary text-white font-weight-bold'
     ),
 
-    dbc.Row([html.P('Choose the time range:', style={'margin-top': '15px', 'margin-bottom': '10px'}),
+    dbc.Row([html.P('Choose the time range:', style={'margin-top': '1vh', 'margin-bottom': '1vh'}),
              dcc.RangeSlider(min=2010,
                              max=2023,
                              step=1,
@@ -35,7 +35,10 @@ content = html.Div([
 
     dbc.Row([
         dbc.Col([dbc.Row([html.P(id='bar-title-page1',
-                                 style={'margin-top': '15px', 'font-weight': 'bold', 'textAlign': 'center'}
+                                 style={'margin-top': '15px',
+                                        'font-weight': 'bold',
+                                        'textAlign': 'center',
+                                        'font-size': 20}
                                  )
                           ]),
 
@@ -55,12 +58,13 @@ content = html.Div([
                           ]),
 
                  dbc.Row([dcc.Graph(id='barchart-products-page1')])
-                 ]),
+                 ], xs=6, sm=6, md=6, lg=6),
 
         dbc.Col([dbc.Row([html.P(id='treemap-title-page1', style={'margin-top': '15px',
                                                                   'height': '5vh',
                                                                   'font-weight': 'bold',
-                                                                  'textAlign': 'center'}
+                                                                  'textAlign': 'center',
+                                                                  'font-size': 20}
                                  )
                           ]),
 
@@ -82,10 +86,11 @@ content = html.Div([
                           ]),
 
                  dbc.Row([dcc.Graph(id='treemap-countries-page1')])
-                 ])
+                 ], xs=6, sm=6, md=6, lg=6)
     ]),
 
-    dbc.Row([html.P(id='line-title-page1')], style={'font-weight': 'bold', 'textAlign': 'center'}),
+    dbc.Row([html.P(id='line-title-page1')],
+            style={'font-weight': 'bold', 'textAlign': 'center', 'font-size': 20}),
 
     dbc.Row([
         dbc.Col(html.Div([
@@ -93,14 +98,14 @@ content = html.Div([
                          multi=False,
                          value='Grouped',
                          options=['Grouped', 'Granular'],
-                         style={'width': '200px', 'margin-left': '40px'}
+                         style={'width': '20vh', 'margin-left': '4vh'}
                          )
         ]), width=2),
 
         dbc.Col(html.Div([
             dcc.Checklist([" Monthly Data"], [" Monthly Data"], id="monthlydata-check-page1", inline=True),
             dcc.Checklist([" Trendlines"], [], id="trendline-check-page1", inline=True)
-        ])
+        ], style={'margin-left': '10vh'})
 
         )
     ]),
@@ -110,8 +115,8 @@ content = html.Div([
 
 layout = dbc.Container(children=[
     dbc.Row([
-        dbc.Col(sidebar, width=1, className='bg-primary'),
-        dbc.Col(content, width=11)
+        dbc.Col(sidebar, className='bg-primary', xs=2, sm=2, md=2, lg=2),
+        dbc.Col(content, xs=10, sm=10, md=10, lg=10)
     ],
         style={'height': '95vh'}        # Viewport height set to 95%
     )
@@ -255,9 +260,8 @@ def update_barchart_products_page1(years: list[int], chosen_val: str, grouping: 
 
     fig_bar.update_traces(hovertemplate=hovertext)
 
-    fig_bar.update_layout(height=550,
-                          width=1270,
-                          showlegend=show_legend,
+    fig_bar.update_layout(showlegend=show_legend,
+                          margin=go.layout.Margin(t=50),
                           xaxis=dict(categoryorder='total descending'),
                           yaxis=dict(categoryorder='total ascending', tickfont=dict(size=8)),
                           yaxis2=dict(categoryorder='total ascending', tickfont=dict(size=8)),
@@ -292,8 +296,6 @@ def update_treemap_countries_page1(years: list[int], chosen_product):
                              path=['Europe', 'country'],
                              values='value',
                              color='value',
-                             width=950,
-                             height=550,
                              color_continuous_scale='Blues')
 
     fig_treemap.update_traces(hovertemplate="<b>%{label}</b> <br> "
@@ -334,8 +336,6 @@ def update_linechart_value_page1(years, grouping, monthlydata, trendlinedata):
     fig_linechart.add_trace(go.Scatter(x=line_data['time'], y=pd.Series(dtype=object), mode='lines'))
 
     # Adding information of the value of the chosen product for all the chosen countries into the timeline
-    fig_linechart = go.Figure()
-
     for i in range(len(product_names)):
         fig_data = (line_data[line_data['product'] == product_names[i]].
                     sort_values(by=['time'], ascending=True).reset_index(drop=True))
@@ -368,8 +368,7 @@ def update_linechart_value_page1(years, grouping, monthlydata, trendlinedata):
                                         hovertemplate="<b>Year:</b> %{x|%Y} <br> <b>Month:</b> %{x|%B}"
                                                       "<br> <b>GWh:</b> %{y}")
 
-    fig_linechart.update_layout(height=350,
-                                yaxis_title="GWh",
+    fig_linechart.update_layout(yaxis_title="GWh",
                                 legend_title="Energy Source",
                                 margin=go.layout.Margin(t=30))
 
