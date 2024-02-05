@@ -26,12 +26,12 @@ Please see the details of the file structure and information about each file bel
 
 - `page2.py`: Interactive comparisons of the energy transition between user-selected European countries
 
-  ![Page 1](page2.png)
+  ![Page 2](page2.png)
 <br/>
 
 - `page3.py`: Analysis of the energy transition within one chosen European country and some descriptive statistics
 
-  ![Page 1](page3.png)
+  ![Page 3](page3.png)
   <br/>
 
 - `page4.py`: The dashboard shows the predictions for the total generated electricity for the chosen energy source group within the European countries by using HWES and/or SARIMA. The performance metrics for both methods are presented within the table. The seasonality, trends and correlations within the data are demonstrated with the plots from Seasonal Trend Decomposition with LOESS (STL) and the accompanying autocorrelation (ACF) and partial autocorrelation (PACF) plots.
