@@ -1,8 +1,9 @@
 # Web Application for Analysing the Green Energy Transition in Europe
 
-A Plotly / Dash / Flask web application to analyse and visualise the energy transition data in the European countries. The data is a subset of the International Energy Agency’s (IAE) monthly Electricity Statistics from [Kaggle](https://www.kaggle.com/datasets/ccanb23/iea-monthly-electricity-statistics), licenced under ODC-By v1.0
+A Plotly / Dash / Flask web application to analyse and visualise the energy transition data in European countries. The web application also presents the predictions for the total generated electricity for certain energy groups by using Triple Holt-Winters Exponential Smoothing (HWES) and SARIMA. The data is a subset of the International Energy Agency’s (IAE) monthly Electricity Statistics from [Kaggle](https://www.kaggle.com/datasets/ccanb23/iea-monthly-electricity-statistics), licenced under ODC-By v1.0
 
 Please see the details of the file structure and information about each file below.
+
 
 # Controls:
 - All pages have a time series slider to select the time range to analyse. 
@@ -25,11 +26,20 @@ Please see the details of the file structure and information about each file bel
 
 - `page2.py`: Interactive comparisons of the energy transition between user-selected European countries
 
-  ![Page 1](page2.png)
+  ![Page 2](page2.png)
 <br/>
 
-- `page3`: Analysis of the energy transition within one chosen European country and some descriptive statistics
+- `page3.py`: Analysis of the energy transition within one chosen European country and some descriptive statistics
 
-  ![Page 1](page3.png)
+  ![Page 3](page3.png)
+  <br/>
 
+- `page4.py`: The dashboard shows the predictions for the total generated electricity for the chosen energy source group within the European countries by using HWES and/or SARIMA. The performance metrics for both methods are presented within the table. The seasonality, trends and correlations within the data are demonstrated with the plots from Seasonal Trend Decomposition with LOESS (STL) and the accompanying autocorrelation (ACF) and partial autocorrelation (PACF) plots.
+
+  ![Page 4](page4.png)
+  <br/>
+
+# TSA
+
+- `time_series_algorithm_selection.ipynb`: Research notebook with details of the time series analysis. The results of the STL for each energy source are presented separately for each energy source group. In addition, the file demonstrates and justifies the choice of the methods and parameters of the two methods that are used for the predictions in `page4`.
 
